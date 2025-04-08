@@ -1,0 +1,37 @@
+name: Build Kivy APK
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.10
+
+    - name: Install dependencies
+      run: |
+        sudo apt update
+        sudo apt install -y zip unzip openjdk-17-jdk python3-pip python3-setuptools git
+        pip install --user buildozer cython
+
+    - name: Build APK
+      run: |
+        pip install --user buildozer
+        export PATH=$HOME/.local/bin:$PATH
+        buildozer -v android debug
+
+    - name: Upload APK
+      uses: actions/upload-artifact@v2
+      with:
+        name: weather-app-apk
+        path: bin/*.apk
+        
